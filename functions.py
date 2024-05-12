@@ -25,11 +25,6 @@ import io
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-#some common exceptions
-global exception_1, exception_2
-exception_1 = 'Error: Loading exceeded 1 minute. Potential reasons: dataset too large for GREAT or connection problems. To get gene associations for large datasets, split the dataset first. Use headless=False to troubleshoot'
-exception_2 = 'Error: Loading exceeded 15 seconds. Potential reason: connection problems. Use headless=False to troubleshoot.'
-
 def format_for_great(bed_data: pd.DataFrame | pl.DataFrame | list | np.ndarray | str, df_chr, df_start, df_end, df_index,
                      df_score, df_strand, df_thickStart, df_thickEnd, df_rgb):
     '''
@@ -281,7 +276,7 @@ def get_genes(driver):
         soup = BeautifulSoup(driver.page_source, 'lxml')
         tables = soup.find_all('table', class_='gSubTable')
     except WebDriverException:
-        raise Exception(exception_1)
+        raise Exception('Error: Loading exceeded 1 minute. Potential reasons: dataset too large for GREAT or connection problems. To get gene associations for large datasets, split the dataset first. Use headless=False to troubleshoot')
 
     #Find all gene names and positions
     gene_tags = tables[0].find_all('td')
@@ -323,7 +318,7 @@ def get_genes_pivot(driver):
         soup = BeautifulSoup(driver.page_source, 'lxml')
         tables = soup.find_all('table', class_='gSubTable')
     except WebDriverException:
-        raise Exception(exception_1)
+        raise Exception('Error: Loading exceeded 1 minute. Potential reasons: dataset too large for GREAT or connection problems. To get gene associations for large datasets, split the dataset first. Use headless=False to troubleshoot')
 
     #Find all gene names and positions
     gene_tags = tables[1].find_all('td')
@@ -426,7 +421,7 @@ def get_table(driver, specifier):
         try:
             soup = BeautifulSoup(driver.page_source, 'lxml')
             tables = soup.find_all('table', class_='gSubTable')
-        except WebDriverException: raise Exception(exception_1)
+        except WebDriverException: raise Exception('Error: Loading exceeded 1 minute. Potential reasons: dataset too large for GREAT or connection problems. To get gene associations for large datasets, split the dataset first. Use headless=False to troubleshoot')
         soup = BeautifulSoup(driver.page_source, 'lxml')
 
         #Find the relevant table
@@ -594,10 +589,10 @@ def plot_table(driver, plot_type, n, get, file_name):
     #wait until element is available
     if plot_type == 'bar':    
         try: newelem = WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, 'chart_container')))
-        except TimeoutException: raise Exception(exception_2)
+        except TimeoutException: raise Exception('Error: Loading exceeded 15 seconds. Potential reason: connection problems. Use headless=False to troubleshoot.')
     else: 
         try: newelem = WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, 'svgContainer')))
-        except TimeoutException: raise Exception(exception_2)
+        except TimeoutException: raise Exception('Error: Loading exceeded 15 seconds. Potential reason: connection problems. Use headless=False to troubleshoot.')
 
     #set plot name
     if file_name == None:
@@ -607,7 +602,7 @@ def plot_table(driver, plot_type, n, get, file_name):
 
     #wait until element is available
     try: newelem = WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.LINK_TEXT, 'PDF')))
-    except TimeoutException: raise Exception(exception_2)
+    except TimeoutException: raise Exception('Error: Loading exceeded 15 seconds. Potential reason: connection problems. Use headless=False to troubleshoot.')
 
     #show download link (hierarchy) or get full size image (bar)
     show_download_link = driver.find_element(By.LINK_TEXT, 'PNG')
@@ -616,7 +611,7 @@ def plot_table(driver, plot_type, n, get, file_name):
     if plot_type == 'hierarchy': 
         #wait until element is available
         try: newelem = WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.LINK_TEXT, 'click here')))
-        except TimeoutException: raise Exception(exception_2)
+        except TimeoutException: raise Exception('Error: Loading exceeded 15 seconds. Potential reason: connection problems. Use headless=False to troubleshoot.')
 
         #get full screen image
         download_link = driver.find_element(By.LINK_TEXT, 'click here')
