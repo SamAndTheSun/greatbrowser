@@ -238,11 +238,3 @@ def great_global_controls():
     print('view = Significance view:\tviewSigByBoth, viewSigByRegion, viewFull')
 
     return
-
-def main():
-  great_global_controls()
-  great_get_options()
-  great_analysis()
-
-if __name__ == "__main__":
-  main()
