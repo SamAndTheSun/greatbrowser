@@ -6,14 +6,14 @@ on:
 jobs:
     python-build-n-publish:
         name: Build and publish Python distribution
-        runs-on: ubuntu-20.04
+        runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@main
 
             - name: Initialize Python 3.10
-              uses: actions/setup-python@v1
+              uses: actions/setup-python@v4
               with:
-                python-version: "3.10.12"
+                python-version: "3.10"
 
             - name: Install dependencies
               run: |
