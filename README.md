@@ -7,7 +7,7 @@ This implementation is available as a module:
 pip install greatbrowser
 ```
 
-The user experience is built primarily around a single function, great_analysis(), with the complementary functions great_get_options() and great_global_controls()
+The user experience is primarily built around a single function, great_analysis(), with the complementary functions great_get_options() and great_global_controls()
 providing context regarding some of the parameters for this function. The "sample_usage" jupyter file  gives some examples of how the parameters may be tuned.
 
 The current version supports the ability to find gene associations using probe sets as well the ability to download any GREAT-generated table or plot in dataframe form. 
