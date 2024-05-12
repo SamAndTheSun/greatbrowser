@@ -13,7 +13,7 @@ setup(
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
     url="https://github.com/SamAndTheSun/greatbrowser",  # URL to your package's repository
-    packages='src',
+    packages=find_packages(),
     install_requires=[
         'selenium',
         'beautifulsoup4',
