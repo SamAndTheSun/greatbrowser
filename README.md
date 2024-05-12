@@ -1,4 +1,4 @@
-# greatbrowser
+# greatbrowser v1.0.0
 A selenium implementation in python for Stanford's GREAT browser, allowing for quick and easy genomic analysis.
 
 This repository can be installed as a module
