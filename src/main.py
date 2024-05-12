@@ -19,7 +19,7 @@ import numpy as np
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-from src.functions import format_for_great, get_genes, get_genes_pivot, get_ucsc_browser, get_n_genes_region, get_table, adjust_global_controls, plot_table
+from functions import format_for_great, get_genes, get_genes_pivot, get_ucsc_browser, get_n_genes_region, get_table, adjust_global_controls, plot_table
 
 def great_analysis(test_regions: pd.DataFrame | pl.DataFrame | list | np.ndarray | str, get='genes', assembly='mm10', is_formatted=False, background_regions=False, 
               headless=True, df_chr='chr', df_start='start', df_end='end', df_index='index', df_score='score', 
