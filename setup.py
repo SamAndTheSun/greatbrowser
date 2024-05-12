@@ -20,7 +20,7 @@ setup(
     install_requires=['selenium', 'bs4', 'requests', 'webdriver_manager', 'pandas', 'polars', 'numpy', 'Pillow', 'urllib3'],
     keywords=['python', 'genomics', 'genetics', 'greatbrowser', 'great', 'automated', 'analysis'],
     classifiers=["Intended Audience :: Science/Research",
-        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.10",
         "Operating System :: Unix"
         "Operating System :: MacOS :: MacOS X",
         "Operating System :: Microsoft :: Windows"]
