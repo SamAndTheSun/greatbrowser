@@ -7,15 +7,13 @@ from pathlib import Path
 this_directory = Path(__file__).parent
 long_description = (this_directory / "README.md").read_text()
 
-LONG_DESCRIPTION = long_description
-
 setup(
     name="greatbrowser",
     version=VERSION,
     author="Sam Anderson",
     author_email="sanderson01@wesleyan.edu",
     description=DESCRIPTION,
-    long_description=LONG_DESCRIPTION,
+    long_description=long_description,
     long_description_content_type="text/markdown",
     packages=find_packages(),
     install_requires=[
