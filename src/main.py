@@ -1,14 +1,11 @@
 from selenium import webdriver
-from bs4 import BeautifulSoup
-
-import requests
 
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait, Select
+from selenium.webdriver.support.ui import WebDriverWait
 
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException, WebDriverException
@@ -19,8 +16,6 @@ pd.options.mode.chained_assignment = None
 
 import polars as pl
 import numpy as np
-from PIL import Image
-import io
 
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
