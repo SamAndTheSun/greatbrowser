@@ -1,1 +1,1 @@
-from main import 
+from main import great_analysis
