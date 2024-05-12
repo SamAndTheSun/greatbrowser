@@ -9,7 +9,6 @@ setup(
     version=VERSION,
     author="Sam Anderson",
     author_email="sanderson01@wesleyan.edu",
-    license='MIT',  # Specify the license of your package
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
