@@ -21,7 +21,8 @@ setup(
         "Intended Audience :: Science/Research",
         "Programming Language :: Python :: 3",
         "Operating System :: MacOS :: MacOS X",
-        "Operating System :: Microsoft :: Windows"],
+        "Operating System :: Microsoft :: Windows",
+        "Operating System :: Unix"],
     project_urls={
         'Source': 'https://github.com/yourusername/greatbrowser',
         'Bug Reports': 'https://github.com/yourusername/greatbrowser/issues'},
