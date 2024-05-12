@@ -35,9 +35,9 @@ jobs:
         run: python3 -m build
 
       - name: Upload to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@v1
 
-      - uses: pypa/gh-action-pypi-publish@release/v1
+      - uses: pypa/gh-action-pypi-publish@v1
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
