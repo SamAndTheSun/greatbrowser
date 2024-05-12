@@ -20,7 +20,7 @@ setup(
         'requests',
         'webdriver_manager',
         'pandas',
-        'py-polars',
+        'polars',
         'numpy',
         'Pillow',
         'urllib3',
