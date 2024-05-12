@@ -13,10 +13,10 @@ with the available functions being accessible though
 #analyze genomic data
 from greatbrowser import great_analysis
 
-#prints information regarding valid inputs for the "global control" parameter of great_analysis
+#prints information regarding valid inputs for the "global control" parameter for great_analysis
 from greatbrowser import great_global_controls
 
-#prints information regarding valid inputs for the "get" parameter of great_analysis
+#prints information regarding valid inputs for the "get" parameter for great_analysis
 from greatbrowser import great_get_options
 ```
 
