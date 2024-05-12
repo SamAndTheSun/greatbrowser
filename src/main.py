@@ -25,6 +25,8 @@ import io
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+from functions import 
+
 def great_analysis(test_regions: pd.DataFrame | pl.DataFrame | list | np.ndarray | str, get='genes', assembly='mm10', is_formatted=False, background_regions=False, 
               headless=True, df_chr='chr', df_start='start', df_end='end', df_index='index', df_score='score', 
               df_strand='strand', df_thickStart='thickStart', df_thickEnd='thickEnd', df_rgb='rgb', assoc_criteria='basal', cur_reg=True, 
