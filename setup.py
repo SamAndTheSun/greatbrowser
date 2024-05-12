@@ -15,7 +15,17 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/SamAndTheSun/greatbrowser",  # URL to your package's repository
     packages=find_packages(),
-    install_requires=['selenium', 'bs4', 'requests', 'webdriver_manager', 'pandas', 'polars', 'numpy', 'Pillow', 'urllib3'],
+    install_requires=[
+        'selenium',
+        'beautifulsoup4',
+        'requests',
+        'webdriver_manager',
+        'pandas',
+        'py-polars',
+        'numpy',
+        'Pillow',
+        'urllib3',
+    ],
     keywords=['python', 'genomics', 'genetics', 'greatbrowser', 'great', 'automated', 'analysis'],
     classifiers=[
         "Intended Audience :: Science/Research",
