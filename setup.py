@@ -20,6 +20,7 @@ setup(
     keywords=['python', 'genomics', 'genetics', 'greatbrowser', 'great', 'automated', 'analysis'],
     classifiers=["Intended Audience :: Science/Research",
         "Programming Language :: Python :: 3",
+        "Operating System :: Unix"
         "Operating System :: MacOS :: MacOS X",
         "Operating System :: Microsoft :: Windows"]
     )
