@@ -16,7 +16,7 @@ from greatbrowser import great_analysis, great_global_controls, great_get_option
 A guide demonstrating how these functions may be used is available in the "tests" folder (see: "sample_usage")
 
 The user experience is primarily built around a single function, great_analysis(), with the complementary functions great_get_options() and great_global_controls()
-providing context regarding some of the parameters for this function. The "sample_usage" jupyter file  gives some examples of how the parameters may be tuned.
+providing context regarding some of the parameters for this function.
 
 The current version supports the ability to find gene associations using probe sets as well the ability to download any GREAT-generated table or plot in dataframe form. 
 UCSC genome browser implementation is also supported. Customizability is controlled through parameter tuning, some of which are specific, 
