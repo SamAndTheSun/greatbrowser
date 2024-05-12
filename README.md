@@ -1,6 +1,10 @@
 # greatbrowser
 A selenium implementation in python for Stanford's GREAT browser, allowing for quick and easy genetic analysis.
 
+```
+pip install greatbrowser
+```
+
 The user experience is built primarily around a single function, great_analysis(), with the complementary functions great_get_options() and great_global_controls()
 providing context regarding some of the parameters for this function. The "sample_usage" jupyter file  gives some examples of how the parameters may be tuned.
 
