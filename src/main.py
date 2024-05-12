@@ -238,3 +238,6 @@ def great_get_options():
     print('\nFor more advanced information regarding the interpretation and calculation of the available outputs, see https://great-help.atlassian.net/wiki/spaces/GREAT/overview')
     
     return
+
+if __name__ == __main__:
+  great_analysis()
