@@ -239,11 +239,7 @@ def great_global_controls():
 
     return
 
-if __name__ == "__great_global_controls__":
+if __name__ == "__main__":
   great_global_controls()
-
-if __name__ == "great_get_options":
   great_get_options()
-
-if __name__ == "__great_analysis__":
   great_analysis()
