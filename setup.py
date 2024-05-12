@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-VERSION = '0.0.10'
+VERSION = '0.0.11'
 DESCRIPTION = "Automate Stanford's GREAT browser"
 LONG_DESCRIPTION = "A Selenium implementation in Python for Stanford's GREAT browser, allowing for quick and easy genomic analysis."
 
