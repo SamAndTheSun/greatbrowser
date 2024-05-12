@@ -6,7 +6,7 @@ on:
 jobs:
     python-build-n-publish:
         name: Build and publish Python distribution
-        runs-on: macos-latest
+        runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@main
 
