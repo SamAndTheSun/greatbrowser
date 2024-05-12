@@ -239,5 +239,5 @@ def great_get_options():
     
     return
 
-if __name__ == __main__:
+if __name__ == "__main__":
   great_analysis()
