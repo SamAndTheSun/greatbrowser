@@ -21,7 +21,7 @@ setup(
     classifiers=["Intended Audience :: Science/Research",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
-        "Operating System :: Unix",
+        "Operating System :: POSIX",
         "Operating System :: MacOS",
         "Operating System :: Microsoft :: Windows"]
     )
