@@ -1,11 +1,21 @@
 # greatbrowser
 A selenium implementation in python for Stanford's GREAT browser, allowing for quick and easy genomic analysis.
 
-A module is currently in development, but is experiencing errors in implementation
+This repository can be installed as a module
 
 ```
 pip install greatbrowser
 ```
+
+with the available functions being accessible though
+
+```
+#analyze genomic data
+from greatbrowser import great_analysis
+
+from greatbrowser import 
+```
+
 
 The user experience is primarily built around a single function, great_analysis(), with the complementary functions great_get_options() and great_global_controls()
 providing context regarding some of the parameters for this function. The "sample_usage" jupyter file  gives some examples of how the parameters may be tuned.
