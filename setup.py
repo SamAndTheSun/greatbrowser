@@ -24,8 +24,8 @@ setup(
         "Operating System :: Microsoft :: Windows",
         "Operating System :: Unix"],
     project_urls={
-        'Source': 'https://github.com/yourusername/greatbrowser',
-        'Bug Reports': 'https://github.com/yourusername/greatbrowser/issues'},
+        'Source': 'https://github.com/SamAndTheSun/greatbrowser',
+        'Bug Reports': 'https://github.com/SamAndTheSun/greatbrowser/issues'},
     python_requires='>=3.10',  # Specify the minimum required Python version
 )
 
