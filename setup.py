@@ -11,7 +11,7 @@ setup(
     name="greatbrowser",
     version=VERSION,
     author="SamAndTheSuhn (Sam Anderson)",
-    author_email="<sanderson01@wesleyan.edu>",
+    author_email="sanderson01@wesleyan.edu",
     description=DESCRIPTION,
     long_description_content_type="text/markdown",
     long_description=LONG_DESCRIPTION,
