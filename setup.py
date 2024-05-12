@@ -21,12 +21,10 @@ setup(
         "Intended Audience :: Science/Research",
         "Programming Language :: Python :: 3",
         "Operating System :: MacOS :: MacOS X",
-        "Operating System :: Microsoft :: Windows"
-    ],
+        "Operating System :: Microsoft :: Windows"],
     project_urls={
         'Source': 'https://github.com/yourusername/greatbrowser',
-        'Bug Reports': 'https://github.com/yourusername/greatbrowser/issues',
-    },
+        'Bug Reports': 'https://github.com/yourusername/greatbrowser/issues'},
     python_requires='>=3.10',  # Specify the minimum required Python version
 )
 
