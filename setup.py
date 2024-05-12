@@ -2,7 +2,12 @@ from setuptools import setup, find_packages
 
 VERSION = '1.0.0'
 DESCRIPTION = "Automate Stanford's GREAT browser"
-LONG_DESCRIPTION = "A Selenium implementation in Python for Stanford's GREAT browser, allowing for quick and easy genomic analysis."
+
+from pathlib import Path
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.md").read_text()
+
+LONG_DESCRIPTION = long_description
 
 setup(
     name="greatbrowser",
