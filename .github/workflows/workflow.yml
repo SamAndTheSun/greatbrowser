@@ -1,21 +1,27 @@
 name: Publish Python distributions to PyPI
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
-  python-build-n-publish:
+  build-and-publish:
     name: Build and publish Python distribution
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: [3.10, 3.11, 3.12]
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Python
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
-          python-version: 3.10
+          python-version: ${{ matrix.python-version }}
 
       - name: Install build dependencies
         run: |
@@ -25,9 +31,15 @@ jobs:
         run: |
           python setup.py sdist bdist_wheel
 
+      - name: Run tests
+        run: |
+          pip install -r requirements.txt  # Install package dependencies for testing
+          pytest  # Run tests using pytest
+
       - name: Publish distribution to PyPI
+        if: matrix.python-version == '3.10'  # Publish only once (e.g., on Python 3.10)
         env:
-          TWINE_USERNAME: __token__
+          TWINE_USERNAME: "__token__"
           TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
         run: |
           python -m twine upload --repository-url https://upload.pypi.org/legacy/ dist/*
