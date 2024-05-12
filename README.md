@@ -1,7 +1,7 @@
 # greatbrowser
 A selenium implementation in python for Stanford's GREAT browser, allowing for quick and easy genetic analysis.
 
-This implementation is available as a module
+This implementation is available as a module:
 
 ```
 pip install greatbrowser
