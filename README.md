@@ -13,9 +13,14 @@ with the available functions being accessible though
 #analyze genomic data
 from greatbrowser import great_analysis
 
-from greatbrowser import 
+#prints information regarding valid inputs for the "global control" parameter
+from greatbrowser import great_global_controls
+
+#prints information regarding valid inputs for the "get" parameter 
+from greatbrowser import great_get_options
 ```
 
+A guide demonstrating how these functions may be used is available in the "tests" folder (see: "sample_usage")
 
 The user experience is primarily built around a single function, great_analysis(), with the complementary functions great_get_options() and great_global_controls()
 providing context regarding some of the parameters for this function. The "sample_usage" jupyter file  gives some examples of how the parameters may be tuned.
