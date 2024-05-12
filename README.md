@@ -10,14 +10,7 @@ pip install greatbrowser
 with the available functions being accessible though
 
 ```
-#analyze genomic data
-from greatbrowser import great_analysis
-
-#prints information regarding valid inputs for the "global control" parameter for great_analysis
-from greatbrowser import great_global_controls
-
-#prints information regarding valid inputs for the "get" parameter for great_analysis
-from greatbrowser import great_get_options
+from greatbrowser import great_analysis, great_global_controls, great_get_options
 ```
 
 A guide demonstrating how these functions may be used is available in the "tests" folder (see: "sample_usage")
