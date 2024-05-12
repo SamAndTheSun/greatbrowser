@@ -1,8 +1,0 @@
-setup.py
-greatbrowser/__init__.py
-greatbrowser/great_functions.py
-greatbrowser.egg-info/PKG-INFO
-greatbrowser.egg-info/SOURCES.txt
-greatbrowser.egg-info/dependency_links.txt
-greatbrowser.egg-info/requires.txt
-greatbrowser.egg-info/top_level.txt
