@@ -55,7 +55,8 @@ def format_for_great(bed_data: pd.DataFrame | pl.DataFrame | list | np.ndarray |
 
     #load file as df
     elif isinstance(bed_data, str):
-        bed_data = pd.read_excel(bed_data)
+        try: bed_data = pd.read_excel(bed_data)
+        except: bed_data = pd.read_csv(bed_data)
 
     #format df
     if isinstance(bed_data, pd.DataFrame) or isinstance(bed_data, pl.DataFrame):
@@ -63,11 +64,13 @@ def format_for_great(bed_data: pd.DataFrame | pl.DataFrame | list | np.ndarray |
         n = 0
         if isinstance(bed_data, pd.DataFrame) or isinstance(bed_data, pl.DataFrame):
             while n < bed_data.shape[1]: #get appropriate columns
-                df_dict[potential_cols[n]] = bed_data.iloc[:, n]
+                try: df_dict[potential_cols[n]] = bed_data[potential_cols[n]]
+                except: pass
                 n+=1
         elif isinstance(bed_data, np.ndarray):
             while n < bed_data.shape[1]: #get appropriate columns
-                df_dict[potential_cols[n]] = bed_data[:, n]
+                try: df_dict[potential_cols[n]] = bed_data[:, n]
+                except: pass
                 n+=1
         if n < 4: #if there's no index, add one:
             df_dict[potential_cols[n]] = [x for x in range(len(df_dict[potential_cols[n-1]]))]
