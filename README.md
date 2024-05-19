@@ -21,7 +21,7 @@ providing context regarding some of the parameters for this function.
 The current version supports the ability to find gene associations using probe sets as well the ability to download any GREAT-generated table or plot in dataframe form. 
 UCSC genome browser implementation is also supported. Customizability is controlled through parameter tuning, some of which are specific, 
 while others are encapsulated within the "global_settings" dictionary parameter as key options. More specific information is available in the great_analysis() docstring. 
-Because the project uses switch statements, its requires python >= 3.10 to run.
+Because the project uses switch statements, its requires python >= 3.10 to run. Analysis is limited to <200,000 regions.
 
 This repository is ideal for individuals attempting to conduct many different analyses using GREAT across many different probe sets. 
 It is fully functional with regards to its ability to modify table output settings, 
