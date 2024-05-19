@@ -76,6 +76,11 @@ def great_analysis(test_regions: pd.DataFrame | pl.DataFrame | list | np.ndarray
     if headless:
         options.add_argument('--headless') #makes it so that the browser doesn't open
 
+    #split the dataset if too large
+    if test_regions.shape[0] > 200000:
+        print('Error: Datasets with over 200,000 locations are not currently supported')
+        return
+
     #establish driver
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),
                             options=options)
@@ -86,7 +91,6 @@ def great_analysis(test_regions: pd.DataFrame | pl.DataFrame | list | np.ndarray
     for cookie in cookies:
         driver.add_cookie(cookie)
     driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
-
     
     #set assembly to desired choice
     set_assembly = driver.find_element(By.ID, assembly)
