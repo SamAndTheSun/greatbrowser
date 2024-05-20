@@ -125,7 +125,7 @@ def get_genes(driver):
 
     #Extract gene names / positions by id
     for tag in gene_tags:
-        if ('+' not in tag.text) and ('-' not in tag.text): #differentiate between indices and values
+        if '_' in tag.text: #differentiate between indices and values
             gene_by_ids.append(gene_list)
             gene_list = []
         else:
