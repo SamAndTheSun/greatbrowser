@@ -88,6 +88,10 @@ def format_for_great(bed_data: pd.DataFrame | pl.DataFrame | list | np.ndarray |
     else:
         print('Invalid file type detected. Must be either pandas dataframe, polars dataframe, list, numpy array, or path (str)')
 
+    #add _ to all indices to differentiate them from genes in parsing
+    bed_data[df_index] = bed_data[df_index].astype(str)   
+    bed_data[df_index] = bed_data[df_index] + '_'
+
     return bed_data
 
 def get_genes(driver):
