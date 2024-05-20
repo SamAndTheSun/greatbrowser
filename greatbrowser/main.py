@@ -166,7 +166,8 @@ def great_analysis(test_regions: pd.DataFrame | pl.DataFrame | list | np.ndarray
     n_table = False #default table
     match get:
         case 'genes':
-            output = test_regions 
+            test_regions[df_index] = test_regions[df_index].str.slice(0, -1) #remove added '_'
+            output = test_regions
             output['associated_genes'] = get_genes(driver)
         case 'ucsc_browser': get_ucsc_browser(driver) 
         case 'genes_pivot': output = get_genes_pivot(driver)
