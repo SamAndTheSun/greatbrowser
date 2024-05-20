@@ -61,6 +61,9 @@ def format_for_great(bed_data: pd.DataFrame | pl.DataFrame | list | np.ndarray |
     #format df
     if isinstance(bed_data, pd.DataFrame) or isinstance(bed_data, pl.DataFrame):
 
+        bed_data[df_start] = bed_data[df_start].astype(int)
+        bed_data[df_end] = bed_data[df_end].astype(int)
+
         n = 0
         if isinstance(bed_data, pd.DataFrame) or isinstance(bed_data, pl.DataFrame):
             while n < bed_data.shape[1]: #get appropriate columns
