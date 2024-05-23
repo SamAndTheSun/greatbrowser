@@ -8,7 +8,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import TimeoutException, WebDriverException
+from selenium.common.exceptions import TimeoutException, WebDriverException, UnexpectedAlertPresentException
 
 import os
 import pandas as pd
@@ -55,145 +55,168 @@ def great_analysis(test_regions: pd.DataFrame | pl.DataFrame | list | np.ndarray
         return: varies depending on 'get' parameters. call great_get_options() for more information
     '''
 
-    #format genetic data if not already formatted
-    if not is_formatted:
-        test_regions = format_for_great(test_regions, df_chr, df_start, df_end, df_index, df_score, df_strand, df_thickStart, df_thickEnd, df_rgb)
-        if not isinstance(background_regions, bool): 
-            background_regions = format_for_great(background_regions, df_chr, df_start, df_end, df_index, df_score, df_strand, df_thickStart, df_thickEnd, df_rgb)
-    elif isinstance(test_regions, str): #load formatted file
-        test_regions = pd.read_excel(test_regions)
-        if not isinstance(background_regions, bool):
-            background_regions = pd.read_excel(background_regions)
+    try:
     
-    #establish settings
-    options = Options()
-    options.add_argument('--ignore-ssl-errors=yes') #ignore insecure warning
-    options.add_argument('--ignore-certificate-errors')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument('--disable-blink-features=AutomationControlled')
-    options.add_argument("--disable-extensions")
-
-    if headless:
-        options.add_argument('--headless') #makes it so that the browser doesn't open
-
-    #split the dataset if too large
-    if test_regions.shape[0] > 200000:
-        print('Error: Datasets with over 200,000 locations are not currently supported')
-        return
-
-    #establish driver
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),
-                            options=options)
-    driver.get('https://great.stanford.edu/great/public/html/')
-
-    cookies = driver.get_cookies()
-    #get cookies for requests, helps to deal with 403 denied error
-    for cookie in cookies:
-        driver.add_cookie(cookie)
-    driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
-    
-    #set assembly to desired choice
-    set_assembly = driver.find_element(By.ID, assembly)
-    set_assembly.click()
-
-    #select 'BED data'
-    use_input = driver.find_element(By.ID, 'fgChoiceData')
-    use_input.click()
-
-    #put BED data into text box
-    test_regions_string = test_regions.to_csv(index=False, header=None, sep='\t')
-    driver.execute_script('arguments[0].value = arguments[1];', driver.find_element(By.NAME, 'fgData'), test_regions_string)
-
-    #add background region data if applicable
-    if isinstance(background_regions, bool): pass
-    else:
-
-        #select button to input
-        bg_input = driver.find_element(By.XPATH, '/html/body/div[2]/div[4]/div/form/fieldset/div[3]/div/ul/li[3]/label/input')
-        bg_input.click()
-
-        #put background data into text box
-        background_regions_string = background_regions.to_csv(index=False, header=None, sep='\t')
-        driver.execute_script('arguments[0].value = arguments[1];', 
-                                driver.find_element(By.XPATH, '/html/body/div[2]/div[4]/div/form/fieldset/div[3]/div/ul/li[3]/textarea'), 
-                                background_regions_string)
+        #format genetic data if not already formatted
+        if not is_formatted:
+            test_regions = format_for_great(test_regions, get, df_chr, df_start, df_end, df_index, df_score, df_strand, df_thickStart, df_thickEnd, df_rgb)
+            if not isinstance(background_regions, bool): 
+                background_regions = format_for_great(background_regions, get, df_chr, df_start, df_end, df_index, df_score, df_strand, df_thickStart, df_thickEnd, df_rgb)
+        elif isinstance(test_regions, str): #load formatted file
+            try: test_regions = pd.read_excel(test_regions)
+            except: test_regions = pd.read_csv(test_regions, sep='\t')
+            if not isinstance(background_regions, bool):
+                try: background_regions = pd.read_excel(background_regions)
+                except: background_regions = pd.read_csv(background_regions, sep='\t')\
         
-    #show genomic region options
-    show_criteria = driver.find_element(By.ID, 'assoc_btn')
-    show_criteria.click()
+        #establish settings
+        options = Options()
+        options.add_argument('--ignore-ssl-errors=yes') #ignore insecure warning
+        options.add_argument('--ignore-certificate-errors')
+        options.add_argument('--disable-dev-shm-usage')
+        options.add_argument('--disable-blink-features=AutomationControlled')
+        options.add_argument("--disable-extensions")
 
-    #select gene association criteria
-    if assoc_criteria == 'basal':
-        pass
-    else:
-        #select criteria
-        if assoc_criteria == 'two_closest':
-            select_criteria = driver.find_element(By.ID, 'twoClosestRule')
-            select_criteria.click()
-        elif assoc_criteria == 'one_closest':
-            select_criteria = driver.find_element(By.ID, 'oneClosestRule')
-            select_criteria.click()
-        else:
-            raise Exception('Invalid criteria given. Valid options include "basal", "two_nearest", and "one_nearest"')
+        if headless:
+            options.add_argument('--headless') #makes it so that the browser doesn't open
 
-    #change curated regulatory domain option
-    if cur_reg:
-        pass
-    else:
-        cur_reg_dom = driver.find_element(By.ID, 'adv_includeCuratedRegDoms')
-        cur_reg_dom.click()
+        #split the dataset if too large, or raise an error
+        gene_list = []
+        n = 1
+        if test_regions.shape[0] >= 200000:
+            if get == 'genes': n = -(test_regions.shape[0] // -200000)
+            else: raise Exception('Error: Datasets with >= 200,000 regions are only supported for "get = genes"')
+            
+        m = 0
+        while m < n:
 
-    #submit data
-    submit = driver.find_element(By.ID, 'submit_button')
-    submit.click()
+            #split dataset if necessary
+            working_data = test_regions[(m)*200000:(m+1)*200000]
 
-    #wait for the table
-    try: newelem = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.ID, 'job_description_container')))
-    except TimeoutException:
-        error_msg = driver.find_element(By.XPATH, '/html/body/div[2]/div[2]/blockquote ')
-        print(error_msg.text)
-        raise Exception('Error: Loading exceeded 1 minute. Potential reasons: invalid input (generally or for assembly) or connection problems. Use headless=False to troubleshoot.')
-    
-    #expand the table
-    driver.execute_script("document.getElementById('job_description_container').style.display = 'block';")
+            #establish driver
+            driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),
+                                    options=options)
+            driver.get('https://great.stanford.edu/great/public/html/')
 
-    #modify global controls
-    if isinstance(global_controls, dict):
-        adjust_global_controls(driver, global_controls)
+            cookies = driver.get_cookies()
+            #get cookies for requests, helps to deal with 403 denied error
+            for cookie in cookies:
+                driver.add_cookie(cookie)
+            driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+            
+            #set assembly to desired choice
+            set_assembly = driver.find_element(By.ID, assembly)
+            set_assembly.click()
 
-    #get desired data
-    output = False #default output
-    n_table = False #default table
-    match get:
-        case 'genes':
-            test_regions[df_index] = test_regions[df_index].str.slice(0, -1) #remove added '_'
-            output = test_regions
-            output['associated_genes'] = get_genes(driver)
-        case 'ucsc_browser': get_ucsc_browser(driver) 
-        case 'genes_pivot': output = get_genes_pivot(driver)
-        case 'n_genes_region': get_n_genes_region(driver, 0, file_name, get)
-        case 'n_genes_TSS': get_n_genes_region(driver, 1, file_name, get)
-        case 'n_genes_abs_TSS': get_n_genes_region(driver, 2, file_name, get)
-        case 'ensembl_genes': n_table = 0; output = get_table(driver, n_table)
-        case 'go_process': n_table = 1; output = get_table(driver, n_table)
-        case 'go_component': n_table = 2; output = get_table(driver, n_table)
-        case 'go_function': n_table = 3; output = get_table(driver, n_table)
-        case 'human_phenotype': n_table = 4; output = get_table(driver, n_table)
-        case 'mouse_phenotype_KO': n_table = 5; output = get_table(driver, n_table)
-        case 'mouse_phenotype': n_table = 6; output = get_table(driver, n_table)
+            #select 'BED data'
+            use_input = driver.find_element(By.ID, 'fgChoiceData')
+            use_input.click()
 
-    if not isinstance(output, pd.DataFrame): #if an output does not exist, quit the driver and return
+            #put BED data into text box
+            working_string = working_data.to_csv(index=False, header=None, sep='\t')
+            driver.execute_script('arguments[0].value = arguments[1];', driver.find_element(By.NAME, 'fgData'), working_string)
+
+            #add background region data if applicable
+            if isinstance(background_regions, bool): pass
+            else:
+
+                #select button to input
+                bg_input = driver.find_element(By.XPATH, '/html/body/div[2]/div[4]/div/form/fieldset/div[3]/div/ul/li[3]/label/input')
+                bg_input.click()
+
+                #put background data into text box
+                background_regions_string = background_regions.to_csv(index=False, header=None, sep='\t')
+                driver.execute_script('arguments[0].value = arguments[1];', 
+                                        driver.find_element(By.XPATH, '/html/body/div[2]/div[4]/div/form/fieldset/div[3]/div/ul/li[3]/textarea'), 
+                                        background_regions_string)
+                
+            #show genomic region options
+            show_criteria = driver.find_element(By.ID, 'assoc_btn')
+            show_criteria.click()
+
+            #select gene association criteria
+            if assoc_criteria == 'basal':
+                pass
+            else:
+                #select criteria
+                if assoc_criteria == 'two_closest':
+                    select_criteria = driver.find_element(By.ID, 'twoClosestRule')
+                    select_criteria.click()
+                elif assoc_criteria == 'one_closest':
+                    select_criteria = driver.find_element(By.ID, 'oneClosestRule')
+                    select_criteria.click()
+                else:
+                    raise Exception('Invalid criteria given. Valid options include "basal", "two_nearest", and "one_nearest"')
+
+            #change curated regulatory domain option
+            if cur_reg:
+                pass
+            else:
+                cur_reg_dom = driver.find_element(By.ID, 'adv_includeCuratedRegDoms')
+                cur_reg_dom.click()
+
+            #submit data
+            submit = driver.find_element(By.ID, 'submit_button')
+            submit.click()
+
+            #wait for the table
+            try: newelem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, 'job_description_container')))
+            except TimeoutException:
+                error_msg = driver.find_element(By.XPATH, '/html/body/div[2]/div[2]/blockquote ')
+                print(error_msg.text)
+                raise Exception('Error: Loading exceeded 20 seconds. Potential reasons: invalid input (generally or for assembly) or connection problems. Use headless=False to troubleshoot.')
+            
+            #expand the table
+            driver.execute_script("document.getElementById('job_description_container').style.display = 'block';")
+
+            #modify global controls
+            if isinstance(global_controls, dict):
+                adjust_global_controls(driver, global_controls)
+
+            #get desired data
+            output = False #default output
+            n_table = False #default table
+            match get:
+                case 'genes':
+                    gene_list.extend(get_genes(driver))
+                    if (n == 1) or (m == (n-1)): #if last iteration
+                        test_regions[df_index] = test_regions[df_index].str.slice(0, -1) #remove added '_' in index
+                        output = test_regions
+                        output['associated_genes'] = gene_list
+                    else:
+                        pass
+                case 'ucsc_browser': get_ucsc_browser(driver) 
+                case 'genes_pivot': output = get_genes_pivot(driver)
+                case 'n_genes_region': get_n_genes_region(driver, 0, file_name, get)
+                case 'n_genes_TSS': get_n_genes_region(driver, 1, file_name, get)
+                case 'n_genes_abs_TSS': get_n_genes_region(driver, 2, file_name, get)
+                case 'ensembl_genes': n_table = 0; output = get_table(driver, n_table)
+                case 'go_process': n_table = 1; output = get_table(driver, n_table)
+                case 'go_component': n_table = 2; output = get_table(driver, n_table)
+                case 'go_function': n_table = 3; output = get_table(driver, n_table)
+                case 'human_phenotype': n_table = 4; output = get_table(driver, n_table)
+                case 'mouse_phenotype_KO': n_table = 5; output = get_table(driver, n_table)
+                case 'mouse_phenotype': n_table = 6; output = get_table(driver, n_table)
+
+            if n > 1: #if doing multiple iterations
+                pass 
+            elif not isinstance(output, pd.DataFrame): #if an output does not exist, quit the driver and return
+                driver.quit()
+                return
+            elif not isinstance(n_table, pd.DataFrame) == False: #if a table is not defined, quit the driver and return the output
+                pass
+            elif not isinstance(plot, str): #if a table is defined, and visualization is not active, quit the driver and return the output
+                pass
+            else:
+                plot_table(driver, plot, n_table, get, file_name)
+
+            m+=1
+
         driver.quit()
-        return
-    elif not isinstance(n_table, pd.DataFrame) == False: #if a table is not defined, quit the driver and return the output
-        pass
-    elif not isinstance(plot, str): #if a table is defined, and visualization is not active, quit the driver and return the output
-        pass
-    else:
-        plot_table(driver, plot, n_table, get, file_name)
+        return output
 
-    driver.quit()
-    return output
+    except UnexpectedAlertPresentException:
+        raise Exception('Error: Too many requests sent in quick succession. Please delay submitting requests to GREAT')
 
 def great_get_options():
     '''
