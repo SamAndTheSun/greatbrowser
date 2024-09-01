@@ -76,23 +76,24 @@ def format_for_great(bed_data: pd.DataFrame | pl.DataFrame | list | np.ndarray |
                 try: df_dict[potential_cols[n]] = bed_data[potential_cols[n]]
                 except: pass
                 n+=1
-        elif isinstance(bed_data, np.ndarray):
-            while n < bed_data.shape[1]: #get appropriate columns
-                try: df_dict[potential_cols[n]] = bed_data[:, n]
-                except: pass
-                n+=1
+
+    elif isinstance(bed_data, np.ndarray):
+        while n < bed_data.shape[1]: #get appropriate columns
+            try: df_dict[potential_cols[n]] = bed_data[:, n]
+            except: pass
+            n+=1
         if n < 4: #if there's no index, add one:
             df_dict[potential_cols[n]] = [x for x in range(len(df_dict[potential_cols[n-1]]))]
 
-        bed_data = pd.DataFrame().from_dict(df_dict)
-
-        #mandatory inputs
-        if potential_cols[0] not in df_dict: raise Exception(f'KeyError: "{df_chr}" not found in columns')
-        if potential_cols[1] not in df_dict: raise Exception(f'KeyError: "{df_start}" not found in columns')
-        if potential_cols[2] not in df_dict: raise Exception(f'KeyError: "{df_end}" not found in columns')
-
     else:
         print('Invalid file type detected. Must be either pandas dataframe, polars dataframe, list, numpy array, or path (str)')
+
+    bed_data = pd.DataFrame().from_dict(df_dict)
+
+    #mandatory inputs
+    if potential_cols[0] not in df_dict: raise Exception(f'KeyError: "{df_chr}" not found in columns')
+    if potential_cols[1] not in df_dict: raise Exception(f'KeyError: "{df_start}" not found in columns')
+    if potential_cols[2] not in df_dict: raise Exception(f'KeyError: "{df_end}" not found in columns')
 
     if get == 'genes':
         #add _ to all indices to differentiate them from genes in parsing
@@ -122,16 +123,12 @@ def get_genes(driver):
 
     #Find the relevant gene table
     try:
+        temp = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'gSubTable')))
         soup = BeautifulSoup(driver.page_source, 'lxml')
         tables = soup.find_all('table', class_='gSubTable')
+        gene_tags = tables[0].find_all('td')
     except WebDriverException:
         raise Exception('Error: Cannot locate table. Potential reasons: dataset too large for GREAT or connection problems. To get gene associations for large datasets, split the dataset first. Use headless=False to troubleshoot')
-
-    try:
-        #Find all gene names and positions
-        gene_tags = tables[0].find_all('td')
-    except IndexError:
-        raise Exception('Error: Too many requests sent in quick succession. Please delay submitting requests to GREAT')
 
     #prepare to create list of genes from table
     gene_by_ids = []
@@ -170,6 +167,7 @@ def get_genes_pivot(driver):
 
     #Find the relevant gene table
     try:
+        temp = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'gSubTable')))
         soup = BeautifulSoup(driver.page_source, 'lxml')
         tables = soup.find_all('table', class_='gSubTable')
     except WebDriverException:
@@ -205,7 +203,7 @@ def get_ucsc_browser(driver):
     driver.switch_to.window(driver.window_handles[1])
 
     #wait for the browser to load, then get the url
-    try: newelem = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'assemblyName')))
+    try: temp = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'assemblyName')))
     except TimeoutException: raise Exception('Error: Loading exceeded 10 seconds. Potential reason: connection problems. Use headless=False to troubleshoot.')
     new_driver = driver.current_url
 
@@ -274,9 +272,10 @@ def get_table(driver, specifier):
 
         #get data from tables
         try:
+            temp = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'gSubTable')))
             soup = BeautifulSoup(driver.page_source, 'lxml')
             tables = soup.find_all('table', class_='gSubTable')
-        except WebDriverException: raise Exception('Error: Cannot locate table. Potential reasons: dataset too large for GREAT or connection problems. To get gene associations for large datasets, split the dataset first. Use headless=False to troubleshoot')
+        except WebDriverException: raise Exception('Error: Cannot locate table. Potential reasons: dataset too large for GREAT or connection problems. To get gene associations for large datasets, split the dataset first. Use headless=False to troubleshoot.')
         soup = BeautifulSoup(driver.page_source, 'lxml')
 
         #Find the relevant table
@@ -394,10 +393,10 @@ def plot_table(driver, plot_type, n, get, file_name):
 
     #wait until element is available
     if plot_type == 'bar':    
-        try: newelem = WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, 'chart_container')))
+        try: temp = WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, 'chart_container')))
         except TimeoutException: raise Exception('Error: Loading exceeded 15 seconds. Potential reason: connection problems. Use headless=False to troubleshoot.')
     else: 
-        try: newelem = WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, 'svgContainer')))
+        try: temp = WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, 'svgContainer')))
         except TimeoutException: raise Exception('Error: Loading exceeded 15 seconds. Potential reason: connection problems. Use headless=False to troubleshoot.')
 
     #set plot name
@@ -407,7 +406,7 @@ def plot_table(driver, plot_type, n, get, file_name):
         file_name = f'{file_name}.png'
 
     #wait until element is available
-    try: newelem = WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.LINK_TEXT, 'PDF')))
+    try: temp = WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.LINK_TEXT, 'PDF')))
     except TimeoutException: raise Exception('Error: Loading exceeded 15 seconds. Potential reason: connection problems. Use headless=False to troubleshoot.')
 
     #show download link (hierarchy) or get full size image (bar)
@@ -416,7 +415,7 @@ def plot_table(driver, plot_type, n, get, file_name):
 
     if plot_type == 'hierarchy': 
         #wait until element is available
-        try: newelem = WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.LINK_TEXT, 'click here')))
+        try: temp = WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.LINK_TEXT, 'click here')))
         except TimeoutException: raise Exception('Error: Loading exceeded 15 seconds. Potential reason: connection problems. Use headless=False to troubleshoot.')
 
         #get full screen image
