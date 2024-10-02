@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-VERSION = '1.0.7'
+VERSION = '1.0.8'
 DESCRIPTION = "Automate Stanford's GREAT browser"
 
 from pathlib import Path
@@ -26,6 +26,7 @@ setup(
         'numpy',
         'Pillow',
         'urllib3',
+        'lxml',
     ],
     keywords=['python', 'genomics', 'genetics', 'greatbrowser', 'great', 'automated', 'analysis'],
     classifiers=[
