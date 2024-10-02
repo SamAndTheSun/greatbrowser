@@ -124,7 +124,8 @@ def get_genes(driver):
     #Find the relevant gene table
     try:
         temp = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'gSubTable')))
-        soup = BeautifulSoup(driver.page_source, 'lxml')
+        try: soup = BeautifulSoup(driver.page_source, 'lxml')
+        except: soup = BeautifulSoup(driver.page_source, 'html.parser')
         tables = soup.find_all('table', class_='gSubTable')
         gene_tags = tables[0].find_all('td')
     except WebDriverException:
