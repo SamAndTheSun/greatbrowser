@@ -10,7 +10,7 @@ long_description = (this_directory / "README.md").read_text()
 setup(
     name="greatbrowser",
     version=VERSION,
-    author="Sam Anderson",
+    author="Samuel D. Anderson",
     author_email="sanderson01@wesleyan.edu",
     description=DESCRIPTION,
     long_description=long_description,
