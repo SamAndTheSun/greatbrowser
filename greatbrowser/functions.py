@@ -38,7 +38,7 @@ def format_for_great(bed_data: pd.DataFrame | pl.DataFrame | list | np.ndarray |
         param df_end: the name of the column in bed_data representing end point
         param df_index: the name of the column in bed_data representing name, or index
         param df_score: the name of the column in bed_data representing score
-        param df_strand: the name of the column in bed_data representing start point
+        param df_strand: the name of the column in bed_data representing which strand the input is on
         param df_thickStart: the name of the column in bed_data representing thickStart
         param df_thickEnd: the name of the column in bed_data representing thickEnd
         param df_rgb: the name of the column in bed_data representing rgb
@@ -46,43 +46,51 @@ def format_for_great(bed_data: pd.DataFrame | pl.DataFrame | list | np.ndarray |
         return: bed formatted df
     '''
 
-    #precursors for dataframe construction
+    # precursors for dataframe construction
     potential_cols = [df_chr, df_start, df_end, df_index, df_score, df_strand, df_thickStart, df_thickEnd, df_rgb]
     df_dict = {}
 
-    #convert list to np array
+    # convert list to np array
     if isinstance(bed_data, list):
         bed_data = np.array(bed_data)
 
-    #load file as df
+    # load file as df
     elif isinstance(bed_data, str):
         try: bed_data = pd.read_excel(bed_data); print('exc')
         except: 
             bed_source = bed_data
             bed_data = pd.read_csv(bed_data, sep='\t')
-        #if csv, not tsv/BED
+        # if csv, not tsv/BED
         if bed_data.shape[1] == 1:
             bed_data = pd.read_csv(bed_source, sep=',')
 
-    #format df
+    # format df
     if isinstance(bed_data, pd.DataFrame) or isinstance(bed_data, pl.DataFrame):
 
-        bed_data[df_start] = bed_data[df_start].astype(int)
-        bed_data[df_end] = bed_data[df_end].astype(int)
+        if df_end in bed_data: # if there is a different endpoint
+            bed_data[df_start] = bed_data[df_start].astype(int)
+            bed_data[df_end] = bed_data[df_end].astype(int)
+        else:
+            bed_data[df_start] = bed_data[df_start].astype(int)
+            bed_data[df_end] = bed_data[df_start]
+
+        # if chromosome is just an integer, make it 'chrZ' format
+        if pd.api.types.is_numeric_dtype(bed_data[df_chr]):
+            bed_data[df_chr] = bed_data[df_chr].astype(str).apply(lambda x: 'chr' + x)
 
         n = 0
         if isinstance(bed_data, pd.DataFrame) or isinstance(bed_data, pl.DataFrame):
-            while n < bed_data.shape[1]: #get appropriate columns
+            while n < bed_data.shape[1]: # get appropriate columns
                 try: df_dict[potential_cols[n]] = bed_data[potential_cols[n]]
                 except: pass
                 n+=1
 
     elif isinstance(bed_data, np.ndarray):
-        while n < bed_data.shape[1]: #get appropriate columns
+        while n < bed_data.shape[1]: # get appropriate columns
             try: df_dict[potential_cols[n]] = bed_data[:, n]
             except: pass
             n+=1
-        if n < 4: #if there's no index, add one:
+        if n < 4: # if there's no index, add one:
             df_dict[potential_cols[n]] = [x for x in range(len(df_dict[potential_cols[n-1]]))]
 
     else:
@@ -90,13 +98,13 @@ def format_for_great(bed_data: pd.DataFrame | pl.DataFrame | list | np.ndarray |
 
     bed_data = pd.DataFrame().from_dict(df_dict)
 
-    #mandatory inputs
+    # mandatory inputs
     if potential_cols[0] not in df_dict: raise Exception(f'KeyError: "{df_chr}" not found in columns')
     if potential_cols[1] not in df_dict: raise Exception(f'KeyError: "{df_start}" not found in columns')
     if potential_cols[2] not in df_dict: raise Exception(f'KeyError: "{df_end}" not found in columns')
 
     if get == 'genes':
-        #add _ to all indices to differentiate them from genes in parsing
+        # add _ to all indices to differentiate them from genes in parsing
         bed_data[df_index] = bed_data[df_index].astype(str)   
         bed_data[df_index] = bed_data[df_index] + '_'
 
@@ -110,18 +118,18 @@ def get_genes(driver):
         return: list of lists containing genes by id
     '''
 
-    #show the gene associations
+    # show the gene associations
     show_table_button = driver.find_element(By.LINK_TEXT, 'View all genomic region-gene associations.')
     show_table_button.click()
 
     while True:
         try:
-            #Load the gene association data
+            # load the gene association data
             driver.switch_to.window(driver.window_handles[1]) #focus driver on newly opened tab
             break
         except IndexError: pass
 
-    #Find the relevant gene table
+    # find the relevant gene table
     try:
         temp = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'gSubTable')))
         try: soup = BeautifulSoup(driver.page_source, 'lxml')
@@ -131,12 +139,12 @@ def get_genes(driver):
     except WebDriverException:
         raise Exception('Error: Cannot locate table. Potential reasons: dataset too large for GREAT or connection problems. To get gene associations for large datasets, split the dataset first. Use headless=False to troubleshoot')
 
-    #prepare to create list of genes from table
+    # prepare to create list of genes from table
     gene_by_ids = []
 
-    #Extract gene names / positions by id
+    # extract gene names / positions by id
     for tag in gene_tags:
-        if '_' in tag.text: #differentiate between indices and values
+        if '_' in tag.text: # differentiate between indices and values
             try: gene_by_ids.append(gene_list)
             except UnboundLocalError: pass
             gene_list = []
@@ -159,14 +167,14 @@ def get_genes_pivot(driver):
     gene_list = []
     id_list = []
     
-    #show the gene associations
+    # show the gene associations
     show_table_button = driver.find_element(By.LINK_TEXT, 'View all genomic region-gene associations.')
     show_table_button.click()
 
-    #Load the gene association data
+    # load the gene association data
     driver.switch_to.window(driver.window_handles[1]) #focus driver on newly opened tab
 
-    #Find the relevant gene table
+    # find the relevant gene table
     try:
         temp = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'gSubTable')))
         soup = BeautifulSoup(driver.page_source, 'lxml')
@@ -174,7 +182,7 @@ def get_genes_pivot(driver):
     except WebDriverException:
         raise Exception('Error: Cannot locate table. Potential reasons: dataset too large for GREAT or connection problems. To get gene associations for large datasets, split the dataset first. Use headless=False to troubleshoot')
 
-    #Find all gene names and positions
+    # find all gene names and positions
     gene_tags = tables[1].find_all('td')
     genes = gene_tags[::2]
     ids = gene_tags[1::2]
@@ -195,26 +203,26 @@ def get_ucsc_browser(driver):
         return: none
     '''
 
-    #click the ucsc browser link
+    # click the ucsc browser link
     driver.execute_script("window.scrollTo(0, 0);")
     go_to_ucsc_btn = driver.find_element(By.LINK_TEXT, 'Show in UCSC genome browser.')
     driver.execute_script("arguments[0].click();", go_to_ucsc_btn)
 
-    #switch to ucsc browser tab
+    # switch to ucsc browser tab
     driver.switch_to.window(driver.window_handles[1])
 
-    #wait for the browser to load, then get the url
+    # wait for the browser to load, then get the url
     try: temp = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'assemblyName')))
     except TimeoutException: raise Exception('Error: Loading exceeded 10 seconds. Potential reason: connection problems. Use headless=False to troubleshoot.')
     new_driver = driver.current_url
 
-    #establish settings for new driver
+    # establish settings for new driver
     new_options = Options()
     new_options.add_argument('--disable-dev-shm-usage')
     new_options.add_experimental_option('detach', True)
 
 
-    #establish driver
+    # establish driver
     new_driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),
                             options=new_options)
     
@@ -236,24 +244,24 @@ def get_n_genes_region(driver, specifier, file_name, get):
         return: none   
     '''
 
-    #get all images, then select appropriate figure
+    # get all images, then select appropriate figure
     img_elements = driver.find_elements(By.TAG_NAME, 'img')
     img_element = img_elements[specifier+6]
 
-    #determine plot name
+    # determine plot name
     if file_name == None: 
         file_name = get
-    #get figure
+    # get figure
     img_url = img_element.get_attribute('src')
     response = requests.get(img_url, verify=False)
 
-    #add white background to image (transparent by default)
+    # add white background to image (transparent by default)
     img = Image.open(io.BytesIO(response.content))
     img = img.convert('RGBA')
     new_img = Image.new('RGB', img.size, (255, 255, 255))
     new_img.paste(img, (0, 0), img)
 
-    #save image to working directory
+    # save image to working directory
     new_img.save(f'{file_name}.png')
     print(f'Image saved as {file_name}.png in {os.getcwd()}')
 
@@ -269,9 +277,9 @@ def get_table(driver, specifier):
         return: specified table   
     '''
 
-    while True: #account for serverside issues
+    while True: # account for serverside issues
 
-        #get data from tables
+        # get data from tables
         try:
             temp = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'gSubTable')))
             soup = BeautifulSoup(driver.page_source, 'lxml')
@@ -279,11 +287,11 @@ def get_table(driver, specifier):
         except WebDriverException: raise Exception('Error: Cannot locate table. Potential reasons: dataset too large for GREAT or connection problems. To get gene associations for large datasets, split the dataset first. Use headless=False to troubleshoot.')
         soup = BeautifulSoup(driver.page_source, 'lxml')
 
-        #Find the relevant table
+        # find the relevant table
         tables = soup.find_all('table')
         table = tables[specifier]
 
-        # Iterate through each row of the table
+        # iterate through each row of the table
         rows = table.find_all('td')
         if 'No results meet your chosen criteria.' in str(rows):
             print('No results meet your chosen criteria.')
@@ -334,26 +342,26 @@ def adjust_global_controls(driver, to_adjust : dict):
         return: none
     '''
 
-    #expand global controls table
+    # expand global controls table
     driver.execute_script("document.getElementById('global_controls_container').style.display = 'block';")
 
-    #because original id is wordy
+    # because original id is wordy
     if 'n_gene_hits' in to_adjust:
         driver.find_element(By.ID, 'minAnnotFgHitGenes').send_keys('value', to_adjust['n_gene_hits'])
         to_adjust.pop('n_gene_hits')
 
-    #change the selected pval view
+    # change the selected pval view
     if 'view' in to_adjust:
         switch_pval_view = driver.find_element(By.ID, to_adjust['view'])
         switch_pval_view.click()
         to_adjust.pop('view')
 
-    #change all other params
+    # change all other params
     for key in to_adjust.keys():
         driver.find_element(By.ID, key).clear()
         driver.find_element(By.ID, key).send_keys(to_adjust[key])
 
-    #update table
+    # update table
     update_btns_criteria = f'//button[contains(@class, "button") and @value="Set"]'
     update_btns = driver.find_elements(By.XPATH, update_btns_criteria)
     for btn in update_btns: btn.click()
@@ -373,8 +381,8 @@ def plot_table(driver, plot_type, n, get, file_name):
         return: none
     '''
 
-    while True: #necessary due to inconsistencies server side, I think, adding wait time periods changes nothing
-        #open correct figure type
+    while True: # necessary due to inconsistencies server side, I think, adding wait time periods changes nothing
+        # open correct figure type
         show_list = driver.find_elements(By.CLASS_NAME, 'visList')
         select = Select(show_list[n])
 
@@ -392,7 +400,7 @@ def plot_table(driver, plot_type, n, get, file_name):
             select = Select(show_list[n])
             select.select_by_visible_text('[select one]')
 
-    #wait until element is available
+    # wait until element is available
     if plot_type == 'bar':    
         try: temp = WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, 'chart_container')))
         except TimeoutException: raise Exception('Error: Loading exceeded 15 seconds. Potential reason: connection problems. Use headless=False to troubleshoot.')
@@ -400,43 +408,43 @@ def plot_table(driver, plot_type, n, get, file_name):
         try: temp = WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, 'svgContainer')))
         except TimeoutException: raise Exception('Error: Loading exceeded 15 seconds. Potential reason: connection problems. Use headless=False to troubleshoot.')
 
-    #set plot name
+    # set plot name
     if file_name == None:
         file_name = f'{get}_{plot_type}_plot.png'
     else:
         file_name = f'{file_name}.png'
 
-    #wait until element is available
+    # wait until element is available
     try: temp = WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.LINK_TEXT, 'PDF')))
     except TimeoutException: raise Exception('Error: Loading exceeded 15 seconds. Potential reason: connection problems. Use headless=False to troubleshoot.')
 
-    #show download link (hierarchy) or get full size image (bar)
+    # show download link (hierarchy) or get full size image (bar)
     show_download_link = driver.find_element(By.LINK_TEXT, 'PNG')
     show_download_link.click()
 
     if plot_type == 'hierarchy': 
-        #wait until element is available
+        # wait until element is available
         try: temp = WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.LINK_TEXT, 'click here')))
         except TimeoutException: raise Exception('Error: Loading exceeded 15 seconds. Potential reason: connection problems. Use headless=False to troubleshoot.')
 
-        #get full screen image
+        # get full screen image
         download_link = driver.find_element(By.LINK_TEXT, 'click here')
         download_link.click()
     
-    #switch to image tab
-    while True: #ditto
+    # switch to image tab
+    while True:
         try:
             driver.switch_to.window(driver.window_handles[2])
             break
         except IndexError:
             pass
 
-    #get png
+    # get png
     img = driver.find_element(By.TAG_NAME, 'img')
     src = img.get_attribute('src')
     response = requests.get(src, verify=False)
     
-    #write png as file
+    # write png as file
     with open(f'{file_name}', 'wb') as f:
         f.write(response.content)
 
