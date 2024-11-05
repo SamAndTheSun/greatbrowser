@@ -267,7 +267,7 @@ def get_n_genes_region(driver, specifier, file_name, get):
 
     return
 
-def get_table(driver, specifier):
+def get_table(driver, specifier, assembly):
     '''
     get a table of data from GREAT, depending on which table is specified
 
@@ -277,13 +277,18 @@ def get_table(driver, specifier):
         return: specified table   
     '''
 
+    if 'hg' in assembly:
+        table_class = 'yui-dt'
+    else:
+        table_class = 'gSubTable'
+
     while True: # account for serverside issues
 
         # get data from tables
         try:
-            temp = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'gSubTable')))
+            temp = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, table_class)))
             soup = BeautifulSoup(driver.page_source, 'lxml')
-            tables = soup.find_all('table', class_='gSubTable')
+            tables = soup.find_all('table', class_=table_class)
         except WebDriverException: raise Exception('Error: Cannot locate table. Potential reasons: dataset too large for GREAT or connection problems. To get gene associations for large datasets, split the dataset first. Use headless=False to troubleshoot.')
         soup = BeautifulSoup(driver.page_source, 'lxml')
 
