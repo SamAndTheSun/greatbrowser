@@ -194,12 +194,12 @@ def great_analysis(test_regions: pd.DataFrame | pl.DataFrame | list | np.ndarray
                 case 'n_genes_TSS': get_n_genes_region(driver, 1, file_name, get)
                 case 'n_genes_abs_TSS': get_n_genes_region(driver, 2, file_name, get)
                 case 'ensembl_genes': n_table = 0; output = get_table(driver, n_table, assembly)
-                case 'go_process': n_table = 1; output = get_table(driver, n_table)
-                case 'go_component': n_table = 2; output = get_table(driver, n_table)
-                case 'go_function': n_table = 3; output = get_table(driver, n_table)
-                case 'human_phenotype': n_table = 4; output = get_table(driver, n_table)
-                case 'mouse_phenotype_KO': n_table = 5; output = get_table(driver, n_table)
-                case 'mouse_phenotype': n_table = 6; output = get_table(driver, n_table)
+                case 'go_process': n_table = 1; output = get_table(driver, n_table, assembly)
+                case 'go_component': n_table = 2; output = get_table(driver, n_table, assembly)
+                case 'go_function': n_table = 3; output = get_table(driver, n_table, assembly)
+                case 'human_phenotype': n_table = 4; output = get_table(driver, n_table, assembly)
+                case 'mouse_phenotype_KO': n_table = 5; output = get_table(driver, n_table, assembly)
+                case 'mouse_phenotype': n_table = 6; output = get_table(driver, n_table, assembly)
 
             if n > 1: # if doing multiple iterations
                 pass 
