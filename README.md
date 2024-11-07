@@ -1,4 +1,4 @@
-# greatbrowser v1.1.4
+# greatbrowser v1.1.5
 
 A selenium implementation in python for Stanford's GREAT browser, allowing for quick and easy genomic analysis.
 

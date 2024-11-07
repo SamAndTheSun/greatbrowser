@@ -273,6 +273,7 @@ def get_table(driver, specifier, assembly):
 
         param driver: the driver focused on the webpage of interest
         param specifier: specifies which table to download. more information can be ascertained by calling great_get_options()
+        param assembly: which assembly, influences table ID names
 
         return: specified table   
     '''
@@ -282,14 +283,31 @@ def get_table(driver, specifier, assembly):
     else:
         table_class = 'gSubTable'
 
+    # show all of the rows of the table
+    table_expander = {
+         0: 'EnsemblGenes',
+         1: 'GOBiologicalProcess',
+         2: 'GOCellularComponent',
+         3: 'GOMolecularFunction',
+         4: 'HumanPhenotypeOntology',
+         5: 'MGIPhenoSingleKO',
+         6: 'MGIPhenotype'
+    }
+
+    # show all of the rows
+    driver.execute_script(f"""
+    document.getElementById('numRows_{table_expander[specifier]}').value = '99999';
+    return setNumRows(document.getElementById('numRows_{table_expander[specifier]}').value, '{table_expander[specifier]}');""")
+
     # get data from tables
     try:
         temp = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, table_class)))
         soup = BeautifulSoup(driver.page_source, 'lxml')
         tables = soup.find_all('table', class_=table_class)
     except WebDriverException: raise Exception('Error: Cannot locate table. Potential reasons: dataset too large for GREAT or connection problems. To get gene associations for large datasets, split the dataset first. Use headless=False to troubleshoot.')
-    soup = BeautifulSoup(driver.page_source, 'lxml')
     
+    soup = BeautifulSoup(driver.page_source, 'lxml')
+
     # find the relevant table
     tables = soup.find_all('table')
     table = tables[specifier]
