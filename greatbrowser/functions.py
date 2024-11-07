@@ -282,47 +282,50 @@ def get_table(driver, specifier, assembly):
     else:
         table_class = 'gSubTable'
 
-      # get data from tables
-      try:
-          temp = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, table_class)))
-          soup = BeautifulSoup(driver.page_source, 'lxml')
-          tables = soup.find_all('table', class_=table_class)
-      except WebDriverException: raise Exception('Error: Cannot locate table. Potential reasons: dataset too large for GREAT or connection problems. To get gene associations for large datasets, split the dataset first. Use headless=False to troubleshoot.')
-      soup = BeautifulSoup(driver.page_source, 'lxml')
-
-      # find the relevant table
-      tables = soup.find_all('table')
-      table = tables[specifier]
-
-      # iterate through each row of the table
-      rows = table.find_all('td')
-      if 'No results meet your chosen criteria.' in str(rows):
-          print('No results meet your chosen criteria.')
-          return -1
-
-      all_row_info = []
-      row_info = []
-      n = 0
-      for cell in rows:
-
-          if n == 22:
-              try: row_info.remove('Loading...')
-              except ValueError: pass
-
-              all_row_info.append(row_info)
-              row_info = []
-              n = 1
-
-          b = cell.find('b')
-          div = cell.find('div')
-          a = cell.find('a')
+    # get data from tables
+    try:
+        temp = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, table_class)))
+        soup = BeautifulSoup(driver.page_source, 'lxml')
+        tables = soup.find_all('table', class_=table_class)
+    except WebDriverException: raise Exception('Error: Cannot locate table. Potential reasons: dataset too large for GREAT or connection problems. To get gene associations for large datasets, split the dataset first. Use headless=False to troubleshoot.')
+    soup = BeautifulSoup(driver.page_source, 'lxml')
+    
+    # find the relevant table
+    tables = soup.find_all('table')
+    table = tables[specifier]
+    
+    # iterate through each row of the table
+    rows = table.find_all('td')
+    if 'No results meet your chosen criteria.' in str(rows):
+        print('No results meet your chosen criteria.')
+        return -1
+    
+    all_row_info = []
+    row_info = []
+    n = 0
+    for cell in rows:
+        if n == 22: # often corresponds to "loading..."
+            try: row_info.remove('Loading...')
+            except ValueError: pass
+            all_row_info.append(row_info)
+            row_info = []
+            n = 1
         
-          if b: row_info.append(b.text)
-          elif div: row_info.append(div.text)
-          elif a: row_info.append(a.text)
-          else: row_info.append('None')
+        b = cell.find('b')
+        div = cell.find('div')
+        a = cell.find('a')
+      
+        if b: row_info.append(b.text)
+        elif div: row_info.append(div.text)
+        elif a: row_info.append(a.text)
+        else: row_info.append('None')
+        n+=1
 
-          n+=1
+    if row_info != []:
+        if 'Loading...' in row_info:
+            all_row_info.append(row_info[1:])
+        else:
+            all_row_info.append(row_info)
 
     column_names = ['term_name','go_annotation','binom_rank','binom_raw_pval','binom_bonferroni_pval',
                'binom_fdr_qval','binom_fold_enrichment','binom_expected','binom_obs_region_hits',
