@@ -105,6 +105,8 @@ def format_for_great(bed_data: pd.DataFrame | pl.DataFrame | list | np.ndarray |
 
     if get == 'genes':
         # add _ to all indices to differentiate them from genes in parsing
+        if df_index == None:
+            bed_data['greatbrowser_index'] = bed_data.index
         bed_data[df_index] = bed_data[df_index].astype(str)   
         bed_data[df_index] = bed_data[df_index] + '_'
 
@@ -137,7 +139,7 @@ def get_genes(driver):
         tables = soup.find_all('table', class_='gSubTable')
         gene_tags = tables[0].find_all('td')
     except WebDriverException:
-        raise Exception('Error: Cannot locate table. Potential reasons: dataset too large for GREAT or connection problems. To get gene associations for large datasets, split the dataset first. Use headless=False to troubleshoot')
+        raise Exception('Error: Cannot locate table. Potential reasons: no entries found, dataset too large for GREAT (>200,000), or connection problems. To get gene associations for large datasets, split the dataset first. Use headless=False to troubleshoot')
 
     # prepare to create list of genes from table
     gene_by_ids = []
